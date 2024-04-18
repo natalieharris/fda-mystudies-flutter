@@ -21,33 +21,67 @@ class _FitbitScreenControllerState extends State<FitbitScreenController> {
   var _accessToken = '';
   var _refreshToken = '';
   var _lastSync = DateTime.parse('2024-02-26');
+  final _config = AppConfig.shared.currentConfig;
 
   @override
   Widget build(BuildContext context) {
-    // If connected, fetch data, else connect
     return FitbitScreen(
-        appName: AppConfig.shared.currentConfig.appName,
-        orgName: AppConfig.shared.currentConfig.organization,
+        appName: _config.appName,
+        orgName: _config.organization,
         connectFitbit: _connectFitbit);
   }
 
   void _connectFitbit() {
-    //TODO(): Add fetch from secure db & check for token validity
     if (_accessToken == '') {
+      // Fetch from secure store, if exists. 
+      AuthUtils.fetchFitbitUserFromDB().then((value) {
+        if (value.length == 3){  // userId, accessToken, refreshToken 
+          developer.log('FETCHED FITBIT CREDENTIALS FROM SECURE STORAGE');
+          _userId = value[0];
+          _accessToken = value[1];
+          _refreshToken = value[2];
+        }
+      });
+    }
+    if (_accessToken != '') {
+      // Check token validity & refresh if needed
+      _refreshCredentials();
+    }
+    if (_accessToken == '') {
+      // Fetch new credentials if none exist. 
       var authenticationService = getIt<AuthenticationService>();
       authenticationService.fitbitSignIn().then((value) {
-          if (value != null) {
-            _userId = value.userID;
-            _accessToken = value.fitbitAccessToken;
-            _refreshToken = value.fitbitRefreshToken;
-            AuthUtils.saveFitbitUserToDB(_accessToken, _refreshToken, _userId);
-            developer.log('Fitbit Credentials saved');
-          } else {
-            developer.log('No FitBit Credentials recieved');
-          }
+          _saveFitbitCredentials(value);
       });
-    } 
+    }
     _fetchData();
+  }
+
+  void _saveFitbitCredentials(FitbitCredentials? credentials) {
+    if (credentials != null) {
+      _userId = credentials.userID;
+      _accessToken = credentials.fitbitAccessToken;
+      _refreshToken = credentials.fitbitRefreshToken;
+      AuthUtils.saveFitbitUserToDB(_accessToken, _refreshToken, _userId);
+      developer.log('Fitbit Credentials saved');
+    } else {
+      developer.log('No FitBit Credentials recieved');
+    }  
+  }
+
+  void _refreshCredentials() async {
+    FitbitCredentials credentials = FitbitCredentials(userID: _userId, fitbitAccessToken: _accessToken, fitbitRefreshToken: _refreshToken);
+    bool valid = await FitbitConnector.isTokenValid(fitbitCredentials: credentials);
+    if (!valid) {
+      FitbitConnector.refreshToken(
+          clientID: _config.fitbitClientId,
+          clientSecret: _config.fitbitClientSecret,
+          fitbitCredentials: credentials,
+      ).then(((value) {
+        _saveFitbitCredentials(value);
+      }));
+    }
+
   }
 
   void _fetchData() {
@@ -55,99 +89,116 @@ class _FitbitScreenControllerState extends State<FitbitScreenController> {
     //TODO(): Add Intraday data
     var daysSinceSync = _lastSync.difference(date).inDays;
     if (daysSinceSync > 0) {
-      var clientId = AppConfig.shared.currentConfig.fitbitClientId;
-      var clientSecret = AppConfig.shared.currentConfig.fitbitClientSecret;
       var credentials = FitbitCredentials(userID: _userId,
-                                          fitbitAccessToken: _accessToken, fitbitRefreshToken: _refreshToken);
-
-      // Activity Data
-      for (int day in Iterable.generate(daysSinceSync)) {
-        FitbitActivityDataManager fitbitActivityDataManager = FitbitActivityDataManager(
-              clientID: clientId, clientSecret: clientSecret);
-        FitbitActivityAPIURL fitbitActivityAPIURL = FitbitActivityAPIURL.day(
-                                          date: _lastSync.add(Duration(days: day)),
-                                          fitbitCredentials: credentials,
-                                        );
-        _fetchAndConvertData(fitbitActivityDataManager, fitbitActivityAPIURL);
-      }
-
-      // Activity Timeseries Data
-      FitbitActivityTimeseriesDataManager fitbitActivityTSDataManager = FitbitActivityTimeseriesDataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      for (Resource r in Resource.values) {
-        FitbitActivityTimeseriesAPIURL fitbitActivityTSAPIURL = FitbitActivityTimeseriesAPIURL.dateRangeWithResource(
-                                        startDate: _lastSync,
-                                        endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                        resource: r
-                                      );
-        _fetchAndConvertData(fitbitActivityTSDataManager, fitbitActivityTSAPIURL);
-      }
-      
-      // Breathing Rate Data
-      FitbitBreathingRateDataManager fitbitBRDataManager = FitbitBreathingRateDataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      FitbitBreathingRateAPIURL fitbitBRAPIURL = FitbitBreathingRateAPIURL.dateRange(
-                                        startDate: _lastSync, endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                      );
-      _fetchAndConvertData(fitbitBRDataManager, fitbitBRAPIURL);
-
-      // Cardio Fitness Score Data
-      FitbitCardioScoreDataManager fitbitCSDataManager = FitbitCardioScoreDataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      FitbitCardioScoreAPIURL fitbitCSAPIURL = FitbitCardioScoreAPIURL.dateRange(
-                                        startDate: _lastSync, endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                      );
-      _fetchAndConvertData(fitbitCSDataManager, fitbitCSAPIURL);
-
-      // Heart Data
-      FitbitHeartDataManager fitbitHeartRateDataManager = FitbitHeartDataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      FitbitHeartRateAPIURL fitbitHeartRateAPIURL = FitbitHeartRateAPIURL.dateRange(
-                                        startDate: _lastSync, endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                      );
-      _fetchAndConvertData(fitbitHeartRateDataManager, fitbitHeartRateAPIURL);
-
-      // Heart Rate Variability Data
-      FitbitHeartRateVariabilityDataManager fitbitHRVDataManager = FitbitHeartRateVariabilityDataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      FitbitHeartRateVariabilityAPIURL fitbitHRVAPIURL = FitbitHeartRateVariabilityAPIURL.dateRange(
-                                        startDate: _lastSync, endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                      );
-      _fetchAndConvertData(fitbitHRVDataManager, fitbitHRVAPIURL);
-
-      // Sleep Data
-      FitbitSleepDataManager fitbitSleepDataManager = FitbitSleepDataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      FitbitSleepAPIURL fitbitSleepAPIURL = FitbitSleepAPIURL.dateRange(
-                                        startDate: _lastSync, endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                      );
-      _fetchAndConvertData(fitbitSleepDataManager, fitbitSleepAPIURL);
-
-      // SpO2 Data
-      FitbitSpO2DataManager fitbitSpo2DataManager = FitbitSpO2DataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      FitbitSpO2APIURL fitbitSpo2APIURL = FitbitSpO2APIURL.dateRange(
-                                        startDate: _lastSync, endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                      );
-      _fetchAndConvertData(fitbitSpo2DataManager, fitbitSpo2APIURL);
-
-      // Temperature (Skin) Data
-      FitbitTemperatureSkinDataManager fitbitTempDataManager = FitbitTemperatureSkinDataManager(
-            clientID: clientId, clientSecret: clientSecret);
-      FitbitTemperatureSkinAPIURL fitbitTempAPIURL = FitbitTemperatureSkinAPIURL.dateRange(
-                                        startDate: _lastSync, endDate: DateTime.now(),
-                                        fitbitCredentials: credentials,
-                                      );
-      _fetchAndConvertData(fitbitTempDataManager, fitbitTempAPIURL);
+                                          fitbitAccessToken: _accessToken,
+                                          fitbitRefreshToken: _refreshToken);
+      _fetchActivityData(credentials, daysSinceSync);
+      _fetchActivityTimeseriesData(credentials);
+      _fetchBreathingData(credentials);
+      _fetchCardioData(credentials);
+      _fetchHeartRateData(credentials);
+      _fetchHeartRateVariabilityData(credentials);
+      _fetchSPO2Data(credentials);
+      _fetchSleepData(credentials);
+      _fetchTemperatureData(credentials);
     }
     _lastSync = date;
+  }
+
+  Future<void> _fetchActivityData(FitbitCredentials credentials, daysSinceSync) async {
+    for (int day in Iterable.generate(daysSinceSync)) {
+      FitbitActivityDataManager fitbitActivityDataManager = FitbitActivityDataManager(
+        clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+      FitbitActivityAPIURL fitbitActivityAPIURL = FitbitActivityAPIURL.day(
+        date: _lastSync.add(Duration(days: day)),
+        fitbitCredentials: credentials,
+      );
+      _fetchAndConvertData(fitbitActivityDataManager, fitbitActivityAPIURL);
+    }
+  }
+
+  Future<void> _fetchActivityTimeseriesData(FitbitCredentials credentials) async {
+    FitbitActivityTimeseriesDataManager fitbitActivityTSDataManager = FitbitActivityTimeseriesDataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    for (Resource r in Resource.values) {
+      FitbitActivityTimeseriesAPIURL fitbitActivityTSAPIURL = FitbitActivityTimeseriesAPIURL.dateRangeWithResource(
+        startDate: _lastSync,
+        endDate: DateTime.now(),
+        fitbitCredentials: credentials,
+        resource: r
+      );
+      _fetchAndConvertData(fitbitActivityTSDataManager, fitbitActivityTSAPIURL);
+    }
+  }
+
+  Future<void> _fetchBreathingData(FitbitCredentials credentials) async {
+    FitbitBreathingRateDataManager fitbitBRDataManager = FitbitBreathingRateDataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    FitbitBreathingRateAPIURL fitbitBRAPIURL = FitbitBreathingRateAPIURL.dateRange(
+      startDate: _lastSync, endDate: DateTime.now(),
+      fitbitCredentials: credentials,
+    );
+    _fetchAndConvertData(fitbitBRDataManager, fitbitBRAPIURL);
+  }
+
+  Future<void> _fetchCardioData(FitbitCredentials credentials) async {
+    FitbitCardioScoreDataManager fitbitCSDataManager = FitbitCardioScoreDataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    FitbitCardioScoreAPIURL fitbitCSAPIURL = FitbitCardioScoreAPIURL.dateRange(
+      startDate: _lastSync, endDate: DateTime.now(),
+      fitbitCredentials: credentials,
+    );
+    _fetchAndConvertData(fitbitCSDataManager, fitbitCSAPIURL);
+  }
+
+  Future<void> _fetchHeartRateData(FitbitCredentials credentials) async {
+    FitbitHeartDataManager fitbitHeartRateDataManager = FitbitHeartDataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    FitbitHeartRateAPIURL fitbitHeartRateAPIURL = FitbitHeartRateAPIURL.dateRange(
+      startDate: _lastSync, endDate: DateTime.now(),
+      fitbitCredentials: credentials,
+    );
+    _fetchAndConvertData(fitbitHeartRateDataManager, fitbitHeartRateAPIURL);
+  }
+
+  Future<void> _fetchHeartRateVariabilityData(FitbitCredentials credentials) async {
+    FitbitHeartRateVariabilityDataManager fitbitHRVDataManager = FitbitHeartRateVariabilityDataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    FitbitHeartRateVariabilityAPIURL fitbitHRVAPIURL = FitbitHeartRateVariabilityAPIURL.dateRange(
+      startDate: _lastSync, endDate: DateTime.now(),
+      fitbitCredentials: credentials,
+    );
+    _fetchAndConvertData(fitbitHRVDataManager, fitbitHRVAPIURL);
+  }
+
+  Future<void> _fetchSleepData(FitbitCredentials credentials) async {
+    FitbitSleepDataManager fitbitSleepDataManager = FitbitSleepDataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    FitbitSleepAPIURL fitbitSleepAPIURL = FitbitSleepAPIURL.dateRange(
+      startDate: _lastSync, endDate: DateTime.now(),
+      fitbitCredentials: credentials,
+    );
+    _fetchAndConvertData(fitbitSleepDataManager, fitbitSleepAPIURL);
+  }
+
+  Future<void> _fetchSPO2Data(FitbitCredentials credentials) async {
+    FitbitSpO2DataManager fitbitSpo2DataManager = FitbitSpO2DataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    FitbitSpO2APIURL fitbitSpo2APIURL = FitbitSpO2APIURL.dateRange(
+      startDate: _lastSync, endDate: DateTime.now(),
+      fitbitCredentials: credentials,
+    );
+    _fetchAndConvertData(fitbitSpo2DataManager, fitbitSpo2APIURL);
+  }
+  
+  Future<void> _fetchTemperatureData(FitbitCredentials credentials) async {
+    FitbitTemperatureSkinDataManager fitbitTempDataManager = FitbitTemperatureSkinDataManager(
+      clientID: _config.fitbitClientId, clientSecret: _config.fitbitClientSecret);
+    FitbitTemperatureSkinAPIURL fitbitTempAPIURL = FitbitTemperatureSkinAPIURL.dateRange(
+      startDate: _lastSync, endDate: DateTime.now(),
+      fitbitCredentials: credentials,
+    );
+    _fetchAndConvertData(fitbitTempDataManager, fitbitTempAPIURL);
   }
 
   void _fetchAndConvertData(FitbitDataManager dataManager, FitbitAPIURL apiurl) {

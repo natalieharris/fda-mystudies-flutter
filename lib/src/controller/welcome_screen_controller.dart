@@ -46,7 +46,7 @@ class _WelcomeScreenControllerState extends State<WelcomeScreenController>
   }
 
   void _continueToOnboarding() {
-    context.pushNamed(RouteName.onboardingInstructions);
+    context.pushNamed(RouteName.fitbitConnection);
   }
 
   void _continueToSignIn() {

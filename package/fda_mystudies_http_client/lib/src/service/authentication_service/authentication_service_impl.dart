@@ -225,11 +225,20 @@ class AuthenticationServiceImpl implements AuthenticationService {
 
   @override
   Future<FitbitCredentials?> fitbitSignIn() {
-        return FitbitConnector.authorize(
-            clientID: config.fitbitClientId,
-            clientSecret: config.fitbitClientSecret,
-            redirectUri: config.fitbitRedirectUri,
-            callbackUrlScheme: config.fitbitCallbackScheme
-        );
+    List<FitbitAuthScope> scopes = [FitbitAuthScope.ACTIVITY,
+        FitbitAuthScope.CARDIO_FITNESS, 
+        FitbitAuthScope.HEART_RATE, 
+        FitbitAuthScope.NUTRITION, 
+        FitbitAuthScope.OXYGEN_SATURATION, 
+        FitbitAuthScope.RESPIRATORY_RATE, 
+        FitbitAuthScope.SLEEP, 
+        FitbitAuthScope.TEMPERATURE];
+    return FitbitConnector.authorize(
+        clientID: config.fitbitClientId,
+        clientSecret: config.fitbitClientSecret,
+        redirectUri: config.fitbitRedirectUri,
+        callbackUrlScheme: config.fitbitCallbackScheme,
+        scopeList: scopes
+    );
   }
 }
