@@ -57,7 +57,7 @@ class _ValuePickerTemplateState extends State<ValuePickerTemplate> {
                 .map((e) => DropdownMenuItem(
                     value: e.value,
                     child: Text(e.text,
-                        style: Theme.of(context).textTheme.headline6)))
+                        style: Theme.of(context).textTheme.titleLarge)))
                 .toList(),
             onChanged: (value) {
               setState(() {

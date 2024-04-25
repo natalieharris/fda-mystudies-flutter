@@ -94,7 +94,7 @@ class _DrawerMenuState extends State<DrawerMenu> {
           const SizedBox(width: 27),
           Expanded(child: Text(title))
         ]),
-        selectedTileColor: Theme.of(context).colorScheme.surfaceVariant,
+        selectedTileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         selectedColor: Theme.of(context).colorScheme.primary,
         selected: isSelected,
         subtitle: subtitle == null
