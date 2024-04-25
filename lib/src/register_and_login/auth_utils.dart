@@ -51,4 +51,21 @@ class AuthUtils {
       return Future.error(error ?? 'ERROR', stackTrace);
     });
   }
+
+  static Future<List> fetchFitbitUserFromDB() {
+    try {
+      const secureStorage = FlutterSecureStorage(
+          iOptions: IOSOptions(),
+          aOptions: AndroidOptions(encryptedSharedPreferences: true));
+      return Future.wait([
+        secureStorage.read(key: SecureKey.fitbitUserId),
+        secureStorage.read(key: SecureKey.fitbitAccessToken),
+        secureStorage.read(key: SecureKey.fitbitRefreshToken)
+      ]);
+    } catch (error, stackTrace){
+      developer.log(error.toString());
+      return Future.error(error, stackTrace);
+    }
+  }
+
 }
