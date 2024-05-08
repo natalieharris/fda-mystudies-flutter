@@ -45,17 +45,17 @@ class DemoConfig implements Config {
 
   @override
   String get source => 'MOBILE APPS';
-  
+
   @override
   String get fitbitClientId => '';
 
   @override
   String get fitbitClientSecret => '';
 
-  @override 
+  @override
   String get fitbitRedirectUri => 'app://com.google.fda_mystudies/mystudies';
 
-  @override 
+  @override
   String get fitbitCallbackScheme => 'app';
 
   @override

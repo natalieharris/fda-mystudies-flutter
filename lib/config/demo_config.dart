@@ -63,5 +63,4 @@ class DemoConfig implements Config {
 
   @override
   String get fitbitCallbackScheme => 'app';
-  
 }

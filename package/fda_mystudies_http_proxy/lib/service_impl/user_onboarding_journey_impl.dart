@@ -18,7 +18,6 @@ class UserOnboardingJourneyImpl implements UserOnboardingJourney {
     _realm = Realm(RealmConfig.config);
   }
 
-
   // No parameters required from the caller.
   // Set value for tempRegId from DB
   // Call authService.getSignInPageURI

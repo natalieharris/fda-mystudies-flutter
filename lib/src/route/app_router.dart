@@ -128,11 +128,10 @@ class AppRouter {
         return null;
       }),
       routes: [
-         GoRoute(
+            GoRoute(
                 name: RouteName.fitbitConnection,
                 path: '/${RouteName.fitbitConnection}',
-                builder: (context, state) =>
-                    const FitbitScreenController()),
+                builder: (context, state) => const FitbitScreenController()),
             GoRoute(
                 name: RouteName.accessibilityScreen,
                 path: '/${RouteName.accessibilityScreen}',
