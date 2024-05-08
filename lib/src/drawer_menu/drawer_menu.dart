@@ -43,9 +43,11 @@ class _DrawerMenuState extends State<DrawerMenu> {
                 ),
                 const SizedBox(width: 24),
                 Expanded(
-                child:Text(AppConfig.shared.currentConfig.appName,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    maxLines: 2,))
+                    child: Text(
+                  AppConfig.shared.currentConfig.appName,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                  maxLines: 2,
+                ))
               ])),
           const SizedBox(height: 30),
           _listTile(
@@ -64,6 +66,14 @@ class _DrawerMenuState extends State<DrawerMenu> {
               l10n.myAccountPage,
               GoRouterState.of(context).path == '/${RouteName.myAccount}',
               () => context.goNamed(RouteName.myAccount)),
+          const SizedBox(height: 8),
+          _listTile(
+              context,
+              Icons.manage_accounts,
+              l10n.fitbitConnectionTitle,
+              GoRouterState.of(context).path ==
+                  '/${RouteName.fitbitConnection}',
+              () => context.goNamed(RouteName.fitbitConnection)),
           const SizedBox(height: 8),
           _listTile(
               context,
@@ -94,7 +104,8 @@ class _DrawerMenuState extends State<DrawerMenu> {
           const SizedBox(width: 27),
           Expanded(child: Text(title))
         ]),
-        selectedTileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        selectedTileColor:
+            Theme.of(context).colorScheme.surfaceContainerHighest,
         selectedColor: Theme.of(context).colorScheme.primary,
         selected: isSelected,
         subtitle: subtitle == null

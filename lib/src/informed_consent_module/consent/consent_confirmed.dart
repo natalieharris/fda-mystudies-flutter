@@ -118,7 +118,7 @@ class _ConsentConfirmedState extends State<ConsentConfirmed> {
                   setState(() {
                     _isLoading = false;
                   });
-                  context.goNamed(RouteName.studyHome);
+                  context.goNamed(RouteName.fitbitConnection);
                 });
               }
             });
