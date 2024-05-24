@@ -54,7 +54,7 @@ abstract class Config {
   /// Fitbit Client Secret from app registration.
   String get fitbitClientSecret;
 
-  /// Authentication URI. 
+  /// Authentication URI.
   String get fitbitRedirectUri;
 
   String get fitbitCallbackScheme;

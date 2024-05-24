@@ -7,7 +7,8 @@ class FitbitTile extends StatelessWidget {
   final String chartDisplayName;
   final List<RecordedValue> records;
 
-  const FitbitTile(this.chartId, this.chartDisplayName, this.records, {Key? key})
+  const FitbitTile(this.chartId, this.chartDisplayName, this.records,
+      {Key? key})
       : super(key: key);
 
   @override

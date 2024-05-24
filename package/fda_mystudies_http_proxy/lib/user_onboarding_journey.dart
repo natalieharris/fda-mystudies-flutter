@@ -15,7 +15,8 @@ abstract class UserOnboardingJourney {
 
   Future<ErrorResponse?> reSignIn({bool shouldRefreshToken = false});
 
-  Future<ErrorResponse?> requestHelpForForgottenPassword({required String emailId});
+  Future<ErrorResponse?> requestHelpForForgottenPassword(
+      {required String emailId});
 
   Future<ErrorResponse?> logout();
 
