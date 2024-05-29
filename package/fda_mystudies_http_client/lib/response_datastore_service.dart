@@ -62,4 +62,11 @@ abstract class ResponseDatastoreService {
       required String studyId,
       required String participantId,
       required List<ActivityStepKeyId> activityStepKeyIdList});
+
+  /// Submit Fitbit data.
+  ///
+  /// [CommonResponse] when data submitted successfully.
+  /// [CommonErrorResponse] for failed submission.
+  Future<Object> processFitbitData(
+      String userId, ActivityResponse activityResponse);
 }

@@ -178,4 +178,23 @@ class ResponseDatastoreServiceImpl implements ResponseDatastoreService {
             .toList())
         .then((value) => value.expand((e) => e).toList());
   }
+
+  @override
+  Future<Object> processFitbitData(
+      String userId, ActivityResponse activityResponse) {
+    var headers = CommonRequestHeader()
+      ..from(config,
+          userId: userId,
+          authToken: Session.shared.authToken,
+          contentType: ContentType.json);
+    Uri uri = Uri.https(
+        config.baseParticipantUrl, '$responseDatastore$processResponsePath');
+
+    return client
+        .post(uri,
+            headers: headers.toHeaderJson(),
+            body: jsonEncode(activityResponse.toJson()))
+        .then((response) => ResponseParser.parseHttpResponse('process_response',
+            response, () => CommonResponse()..fromJson(response.body)));
+  }
 }
