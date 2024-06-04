@@ -21,6 +21,7 @@ dependencies:
   path: ^1.8.0
   crypto: ^3.0.3
   sqflite:
+  fitbitter: ^2.0.4
 
 dev_dependencies:
   flutter_test:

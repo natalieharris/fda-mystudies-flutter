@@ -13,7 +13,7 @@ class TrendsDashboardTile extends StatelessWidget {
         child: Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest),
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

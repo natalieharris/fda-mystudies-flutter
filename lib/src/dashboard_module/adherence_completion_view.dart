@@ -16,8 +16,8 @@ class AdherenceCompletionView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-        decoration:
-            BoxDecoration(color: Theme.of(context).colorScheme.surfaceVariant),
+        decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,

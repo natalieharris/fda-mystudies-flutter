@@ -31,7 +31,7 @@ class StudyHomeScreen extends StatelessWidget {
         body: body,
         bottomNavigationBar: BottomNavigationBar(
             elevation: 16,
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             selectedItemColor: Theme.of(context).colorScheme.primary,
             currentIndex: tabIndex,
             items: tabs

@@ -56,9 +56,9 @@ class ConsentDocument extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     stops: const [0.1, 0.2, 0.6],
                     colors: [
-                      Theme.of(context).colorScheme.background.withOpacity(0.7),
-                      Theme.of(context).colorScheme.background.withOpacity(0.9),
-                      Theme.of(context).colorScheme.background
+                      Theme.of(context).colorScheme.surface.withOpacity(0.7),
+                      Theme.of(context).colorScheme.surface.withOpacity(0.9),
+                      Theme.of(context).colorScheme.surface
                     ],
                   )),
                   height: max(150, 90 * scaleFactor),

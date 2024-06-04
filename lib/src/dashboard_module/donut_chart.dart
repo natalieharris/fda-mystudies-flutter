@@ -17,9 +17,9 @@ class DonutChart extends StatelessWidget {
           PieChartSectionData(
               value: max(completedPercent, 0.1),
               title: 'completed',
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               borderSide: BorderSide(
-                  width: 1.0, color: Theme.of(context).colorScheme.background),
+                  width: 1.0, color: Theme.of(context).colorScheme.surface),
               showTitle: false),
           PieChartSectionData(
               value: 100 - max(completedPercent, 0.1),

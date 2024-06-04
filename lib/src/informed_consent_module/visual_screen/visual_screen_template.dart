@@ -58,13 +58,13 @@ class VisualScreenTemplate extends StatelessWidget {
                         colors: [
                           Theme.of(context)
                               .colorScheme
-                              .background
+                              .surface
                               .withOpacity(0.7),
                           Theme.of(context)
                               .colorScheme
-                              .background
+                              .surface
                               .withOpacity(0.9),
-                          Theme.of(context).colorScheme.background
+                          Theme.of(context).colorScheme.surface
                         ],
                       )),
                       height: max(150, 90 * scaleFactor),
