@@ -54,7 +54,7 @@ class _SignInWebScreenControllerState extends State<SignInWebScreenController> {
       context.pushNamed(RouteName.verificationStep);
       return NavigationActionPolicy.CANCEL;
     }
-    return null;
+    return NavigationActionPolicy.ALLOW;
   }
 
   void _handleMyStudiesCallback(Uri uri) {

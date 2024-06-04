@@ -84,6 +84,8 @@ class _UserStateCheckScreenControllerState
               userStudyState.status.userStudyStatus ==
                   PbUserStudyStatus.notEligible) {
             if (studyState.settings.enrolling) {
+              UserData.shared.curStudyId = userStudyState.studyId;
+              UserData.shared.curSiteId = userStudyState.siteId;
               context.goNamed(RouteName.studyIntro);
             } else {
               ErrorScenario.displayErrorMessageWithOKAction(

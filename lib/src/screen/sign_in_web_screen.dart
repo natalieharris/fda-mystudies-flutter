@@ -7,17 +7,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../user/user_data.dart';
 
 class SignInWebScreen extends StatelessWidget {
-  static final InAppWebViewGroupOptions _options = InAppWebViewGroupOptions(
-      crossPlatform: InAppWebViewOptions(
-          supportZoom: false,
-          useShouldOverrideUrlLoading: true,
-          mediaPlaybackRequiresUserGesture: false),
-      android: AndroidInAppWebViewOptions(
-        useHybridComposition: true,
-      ),
-      ios: IOSInAppWebViewOptions(
-        allowsInlineMediaPlayback: true,
-      ));
 
   final NavigationActionPolicy? Function(NavigationAction)
       processNavigationRequest;
@@ -35,10 +24,14 @@ class SignInWebScreen extends StatelessWidget {
             ? null
             : AppBar(title: Text(l10n.signInScreenTitle)),
         body: InAppWebView(
-            initialOptions: _options,
+            initialSettings: InAppWebViewSettings(useShouldOverrideUrlLoading: true,
+            useHybridComposition: true,
+            allowsInlineMediaPlayback: true,
+            supportZoom: false,
+            mediaPlaybackRequiresUserGesture: false),
             initialUrlRequest: URLRequest(
-                url: authenticationService.getSignInPageURI(
-                    tempRegId: UserData.shared.tempRegId)),
+                url: WebUri.uri(authenticationService.getSignInPageURI(
+                    tempRegId: UserData.shared.tempRegId))),
             shouldOverrideUrlLoading: (controller, request) async =>
                 processNavigationRequest(request)));
   }

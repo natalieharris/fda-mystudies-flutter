@@ -14,4 +14,6 @@ message CommonRequestHeader {
   string app_version = 10;
   string access_token = 11;
   string participant_id = 12;
+  string device_type = 13;
+  string device_os = 14 [json_name = "deviceOS"];
 }

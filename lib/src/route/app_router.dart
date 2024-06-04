@@ -296,8 +296,17 @@ class AppRouter {
                       Provider.of<EligibilityConsentProvider>(context,
                               listen: false)
                           .consent;
-                  return VisualScreen(
-                      consent.visualScreens, ComprehensionTest(consent));
+                  Widget finalScreen = ComprehensionTest(consent);
+                  if (consent.comprehension.questions.isEmpty) {
+                    if (consent.sharingScreen.title.isEmpty &&
+                                consent.sharingScreen.text.isEmpty) {
+                      finalScreen = const ConsentDocument();
+                    } else {
+                      finalScreen = SharingOptions(consent.sharingScreen,
+                      consent.visualScreens, consent.version);
+                    }
+                  }
+                  return VisualScreen(consent.visualScreens, finalScreen);
                 }),
             GoRoute(
                 name: RouteName.sharingOptions,

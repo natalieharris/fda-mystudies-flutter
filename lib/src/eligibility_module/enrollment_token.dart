@@ -84,6 +84,7 @@ class _EnrollmentTokenState extends State<EnrollmentToken> {
                   context.goNamed(RouteName.eligibilityTest);
                   return;
                 }
+                UserData.shared.currentStudyTokenIdentifier = _enrollmentToken;
                 context.goNamed(RouteName.eligibilityDecision);
               } else {
                 ErrorScenario.displayErrorMessageWithOKAction(

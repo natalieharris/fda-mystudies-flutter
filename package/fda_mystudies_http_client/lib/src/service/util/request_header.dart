@@ -22,7 +22,10 @@ extension RequestHeaderExtension on CommonRequestHeader {
       ..appName = config.appName
       ..mobilePlatform = config.platform
       ..appVersion = config.version
-      ..correlationId = Session.shared.correlationId;
+      ..correlationId = Session.shared.correlationId
+      ..deviceType = config.platform
+      // TODO (chintanghate): Add a way to add device OS version to this.
+      ..deviceOs = "1.0";
 
     var authorization = _getAuthorizationHeader(config, authType, authToken);
     if (authorization != null) {
